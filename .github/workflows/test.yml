@@ -8,9 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Test
-      id: test
-      uses: NitorCreations/account-vending-machine@master
+    - uses: actions/checkout@master
+    - uses: NitorCreations/account-vending-machine@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
