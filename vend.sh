@@ -50,15 +50,13 @@ FORK=`jq .pull_request.head.repo.fork "$GITHUB_EVENT_PATH"`
 # Find out if pull request is a fork. If it's not, we are all set.
 if [[ "$FORK" == "false" ]]; then
   echo "Pull request not from fork. Code already checked out correctly"
+else
+  # Check out remote branch based on pull request number
+  # Credit: https://github.community/t5/How-to-use-Git-and-GitHub/Checkout-a-branch-from-a-fork/m-p/78/highlight/true#M11
+  git fetch origin pull/${NUMBER}/head:pr/${NUMBER}
+  git checkout "pr/${NUMBER}"
+  echo "Checked out code from pull request #${NUMBER}. Last commit: $(git log --oneline -n 1)"
 fi
-
-# Check out remote branch based on pull request number
-# Credit: https://github.community/t5/How-to-use-Git-and-GitHub/Checkout-a-branch-from-a-fork/m-p/78/highlight/true#M11
-git fetch origin pull/${NUMBER}/head:pr/${NUMBER}
-git checkout "pr/${NUMBER}"
-echo "Checked out code from pull request #${NUMBER}. Last commit: $(git log --oneline -n 1)"
-© 2019 GitHub, Inc.
-
 
 vend_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
