@@ -38,6 +38,7 @@ URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 
+cat "$GITHUB_EVENT_PATH"
 action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 state=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
@@ -45,6 +46,7 @@ number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 vend_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100")
+  echo "$body"
   reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state} | @base64')
 
   approvals=0
@@ -60,7 +62,9 @@ vend_when_approved() {
     echo "${approvals}/${APPROVALS} approvals"
 
     if [ "$approvals" == "$APPROVALS" ]; then
-       echo "Code to do actial vending here!" 
+       echo "Code to do actual vending here!"
+       ls -la
+       git status
        echo -n "Account ID: "
        ndt account-id
        exit $?
