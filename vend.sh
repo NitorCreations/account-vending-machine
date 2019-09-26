@@ -3,7 +3,7 @@ set -e
 
 if [[ -z "$APPROVALS" ]]; then
   echo "Using default approvals == 1"
-  echo APPROVALS=1
+  APPROVALS=1
 fi
 
 if [[ -z "$GITHUB_TOKEN" ]]; then
