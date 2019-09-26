@@ -49,7 +49,6 @@ FORK=`jq .pull_request.head.repo.fork "$GITHUB_EVENT_PATH"`
 # Find out if pull request is a fork. If it's not, we are all set.
 if [[ "$FORK" == "false" ]]; then
   echo "Pull request not from fork. Code already checked out correctly"
-  exit 0
 fi
 
 # Check out remote branch based on pull request number
