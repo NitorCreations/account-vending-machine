@@ -1,4 +1,4 @@
-iFROM debian:9.6-slim
+FROM debian:9.6-slim
 
 LABEL "com.github.actions.name"="Vend an AWS account when a Pull Request is approverd"
 LABEL "com.github.actions.description"="Implements a workflow for an account vending machine when a pull request describing the new account details is approved"
