@@ -44,8 +44,11 @@ AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 cat "$GITHUB_EVENT_PATH"
 ACTION=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 STATE=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
-NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-FORK=`jq .pull_request.head.repo.fork "$GITHUB_EVENT_PATH"`
+PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+FORK=$(jq .pull_request.head.repo.fork "$GITHUB_EVENT_PATH")
+# https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
+URL="${URI}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100"
+echo $URL
 
 # Find out if pull request is a fork. If it's not, we are all set.
 if [[ "$FORK" == "false" ]]; then
@@ -53,21 +56,20 @@ if [[ "$FORK" == "false" ]]; then
 else
   # Check out remote branch based on pull request number
   # Credit: https://github.community/t5/How-to-use-Git-and-GitHub/Checkout-a-branch-from-a-fork/m-p/78/highlight/true#M11
-  git fetch origin pull/${NUMBER}/head:pr/${NUMBER}
-  git checkout "pr/${NUMBER}"
-  echo "Checked out code from pull request #${NUMBER}. Last commit: $(git log --oneline -n 1)"
+  git fetch origin pull/${PR_NUMBER}/head:pr/${PR_NUMBER}
+  git checkout "pr/${PR_NUMBER}"
+  echo "Checked out code from pull request #${PR_NUMBER}. Last commit: $(git log --oneline -n 1)"
 fi
 
 vend_when_approved() {
-  # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
-  body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${NUMBER}/reviews?per_page=100")
-  echo "$body"
-  reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state} | @base64')
+  BODY=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "$URL")
+  echo "$BODY"
+  REVIEWS=$(echo "$BODY" | jq --raw-output '.[] | {state: .state} | @base64')
 
   READ_APPROVALS=0
 
-  for r in $reviews; do
-    REVIEW="$(echo "$r" | base64 --decode)"
+  for REV in $REVIEWS; do
+    REVIEW="$(echo "$REV" | base64 --decode)"
     REVIEW_STATE=$(echo "$REVIEW" | jq --raw-output '.state')
 
     if [[ "$REVIEW_STATE" == "APPROVED" ]]; then
