@@ -1,34 +1,34 @@
 #!/bin/bash
 set -e
 
-if [[ -z "$APPROVALS" ]]; then
+if [ -z "$APPROVALS" ]; then
   echo "Using default approvals == 1"
   APPROVALS=1
 fi
 
-if [[ -z "$GITHUB_TOKEN" ]]; then
+if [ -z "$GITHUB_TOKEN" ]; then
   echo "Set the GITHUB_TOKEN env variable."
   exit 1
 fi
 
-if [[ -z "$GITHUB_REPOSITORY" ]]; then
+if [ -z "$GITHUB_REPOSITORY" ]; then
   echo "Set the GITHUB_REPOSITORY env variable."
   exit 1
 fi
 
-if [[ -z "$GITHUB_EVENT_PATH" ]]; then
+if [ -z "$GITHUB_EVENT_PATH" ]; then
   echo "Set the GITHUB_EVENT_PATH env variable."
   exit 1
 fi
 
-if [[ -z "$AWS_ACCESS_KEY_ID" -o -z "$AWS_SECRET_ACCESS_KEY" -o -z "$AWS_DEFAULT_REGION" ]]; then
-  if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
+if [ -z "$AWS_ACCESS_KEY_ID" -o -z "$AWS_SECRET_ACCESS_KEY" -o -z "$AWS_DEFAULT_REGION" ]; then
+  if [ -z "$AWS_ACCESS_KEY_ID" ]; then
     echo "Set AWS_ACCESS_KEY_ID to login to AWS"
   fi
-  if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+  if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
     echo "Set AWS_SECRET_ACCESS_KEY to login to AWS"
   fi
-  if [[ -z "$AWS_DEFAULT_REGION" ]]; then
+  if [ -z "$AWS_DEFAULT_REGION" ]; then
     echo "Set AWS_DEFAULT_REGION to set region for created stacks"
   fi
   exit 1
@@ -59,15 +59,16 @@ vend_when_approved() {
 
     echo "${approvals}/${APPROVALS} approvals"
 
-    if [[ "$approvals" == "$APPROVALS" ]]; then
+    if [ "$approvals" == "$APPROVALS" ]; then
        echo "Code to do actial vending here!" 
        echo -n "Account ID: "
        ndt account-id
+       exit $?
     fi
   done
 }
 
-if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
+if [ "$action" == "submitted" ] && [ "$state" == "approved" ]; then
   vend_when_approved
 else
   echo "Ignoring event ${action}/${state}"
