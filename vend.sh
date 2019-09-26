@@ -34,7 +34,8 @@ if [ -z "$AWS_ACCESS_KEY_ID" -o -z "$AWS_SECRET_ACCESS_KEY" -o -z "$AWS_DEFAULT_
   exit 1
 fi
 
-cd $GITHUB_WORKSPACE
+pwd
+ls -la
 
 URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
@@ -79,7 +80,6 @@ vend_when_approved() {
 
     if [ "$READ_APPROVALS" == "$APPROVALS" ]; then
        echo "Code to do actual vending here!"
-       ls -la
        git status
        echo -n "Account ID: "
        ndt account-id
