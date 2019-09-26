@@ -10,7 +10,7 @@ LABEL repository="http://github.com/NitorCreations/account-vending-machine"
 LABEL homepage="http://github.com/NitorCreations/account-vending-machine"
 LABEL maintainer="Pasi Niemi <pasi.niemi@nitor.com>"
 
-RUN apt-get update && apt-get install -y curl jq python-pip && \
+RUN apt-get update && apt-get install -y curl jq git python-pip && \
     pip install nameless-deploy-tools
 
 ADD vend.sh /vend.sh
