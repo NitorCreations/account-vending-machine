@@ -14,4 +14,5 @@ RUN apt-get update && apt-get install -y curl jq git python-pip && \
     pip install nameless-deploy-tools
 
 ADD vend.sh /vend.sh
+WORKDIR /github/workspace
 ENTRYPOINT ["/vend.sh"]
