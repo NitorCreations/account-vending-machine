@@ -1,0 +1,7 @@
+name: 'Account vending machine'
+description: 'Vend an AWS account that is described in a pull request when the pull request is approved'
+inputs:
+outputs:
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
