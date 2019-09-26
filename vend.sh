@@ -63,6 +63,7 @@ vend_when_approved() {
        echo "Code to do actial vending here!" 
        echo -n "Account ID: "
        ndt account-id
+       exit $?
     fi
   done
 }
