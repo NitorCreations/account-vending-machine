@@ -61,6 +61,8 @@ vend_when_approved() {
 
     if [[ "$approvals" == "$APPROVALS" ]]; then
        echo "Code to do actial vending here!" 
+       echo -n "Account ID: "
+       ndt account-id
     fi
   done
 }
