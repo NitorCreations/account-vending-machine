@@ -29,11 +29,12 @@ jobs:
 
 When a new account is required, the team in need will do as follows:
 * Either clone or fork the repository
-* Run a script that creates a branch and a Nameless Deploy Tools component with the same name
+* Run a script that creates a branch and a [Nameless Deploy Tools](https://github.com/NitorCreations/nameless-deploy-tools)
+  component with the same name
    * The script will also create the baseline CloudFormation/CDK/Serverless/Terraform subcomponents
      that implement things like consistent log forwarding, CloudTrail enabling and other security
      requirements
-* Add any other basic compoents that the team needs and the team responsible for account management
+* Add any other basic components that the team needs and the team responsible for account management
   should review
 * Create a pull request against master branch of the original repository
 
