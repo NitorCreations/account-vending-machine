@@ -85,19 +85,22 @@ vend_when_approved() {
         echo "EMAIL needs to be a defined and unique parameter"
         exit 1
       fi
-      ndt create-account $EMAIL $NAME
-      CREATED_ACCOUNT=$(ndt show-stack-params-and-outputs managed-account-$NAME -p paramManagedAccount)
-      MANAGE_ROLE=$(ndt show-stack-params-and-outputs managed-account-$NAME -p ManageRole)
-      echo -n "Account ID: $CREATED_ACCOUNT"
+      if ! grep DEPLOY_ROLE_ARN $NAME/infra.properties > /dev/null; then
+        ndt create-account $EMAIL $NAME
+        CREATED_ACCOUNT=$(ndt show-stack-params-and-outputs managed-account-$NAME -p paramManagedAccount)
+        MANAGE_ROLE=$(ndt show-stack-params-and-outputs managed-account-$NAME -p ManageRole)
+        echo "DEPLOY_ROLE_ARN=$MANAGE_ROLE" >> $NAME/infra.properties
+        echo -n "Created Account ID: $CREATED_ACCOUNT"
+      fi
       COMPONENTS=$(mktemp -p .)
       ndt list-jobs -c $NAME -b $NAME -j | jq .branches[0].components[0].subcomponents > $COMPONENTS
-      OLD_AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
-      OLD_AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
-      eval "$(ndt assume-role $MANAGE_ROLE)"
       for COMPONENT in $(jq -r '.[]|select(.name != null)|.name' < $COMPONENTS | sort); do
         TYPE=$(jq -r ".[]|select(.name == \"$COMPONENT\")|.type" < $COMPONENTS)
         ndt deploy-$TYPE $NAME $COMPONENT
       done
+      if [ -n "$CREATED_ACCOUNT" -a -n "$POST_CREATE" ]; then
+        $POST_CREATE $NAME $CREATED_ACCOUNT
+      fi
       exit $?
     fi
   done
