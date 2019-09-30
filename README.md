@@ -58,3 +58,4 @@ As you can see above the action requires that the checkout action is previously 
 will need the github token to access the pull request details and login credentials to the AWS
 organizations api. The AWS IAM user defined by the keys will have to have the `organizations:CreateAccount`
 IAM permission.
+
