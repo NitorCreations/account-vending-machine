@@ -46,6 +46,7 @@ ACTION=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 STATE=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 FORK=$(jq .pull_request.head.repo.fork "$GITHUB_EVENT_PATH")
+NAME=$(jq .pull_request.head.ref "$GITHUB_EVENT_PATH")
 # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
 URL="${URI}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100"
 echo $URL
@@ -79,11 +80,25 @@ vend_when_approved() {
     echo "${READ_APPROVALS}/${APPROVALS} approvals"
 
     if [ "$READ_APPROVALS" == "$APPROVALS" ]; then
-       echo "Code to do actual vending here!"
-       git status
-       echo -n "Account ID: "
-       ndt account-id
-       exit $?
+      eval "$(ndt load-parameters $NAME -e)"
+      if [ -z "$EMAIL" ]; then
+        echo "EMAIL needs to be a defined and unique parameter"
+        exit 1
+      fi
+      ndt create-account $EMAIL $NAME
+      CREATED_ACCOUNT=$(ndt show-stack-params-and-outputs managed-account-$NAME -p paramManagedAccount)
+      MANAGE_ROLE=$(ndt show-stack-params-and-outputs managed-account-$NAME -p ManageRole)
+      echo -n "Account ID: $CREATED_ACCOUNT"
+      COMPONENTS=$(mktemp -p .)
+      ndt list-jobs -c $NAME -b $NAME -j | jq .branches[0].components[0].subcomponents > $COMPONENTS
+      OLD_AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+      OLD_AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+      eval "$(ndt assume-role $MANAGE_ROLE)"
+      for COMPONENT in $(jq -r '.[]|select(.name != null)|.name' < $COMPONENTS | sort); do
+        TYPE=$(jq -r ".[]|select(.name == \"$COMPONENT\")|.type" < $COMPONENTS)
+        ndt deploy-$TYPE $NAME $COMPONENT
+      done
+      exit $?
     fi
   done
 }
