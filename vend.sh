@@ -41,7 +41,6 @@ URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 
-cat "$GITHUB_EVENT_PATH"
 ACTION=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 STATE=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
@@ -64,7 +63,6 @@ fi
 
 vend_when_approved() {
   BODY=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "$URL")
-  echo "$BODY"
   REVIEWS=$(echo "$BODY" | jq --raw-output '.[] | {state: .state} | @base64')
 
   READ_APPROVALS=0
