@@ -18,5 +18,6 @@ RUN apt-get update && apt-get install -y curl jq git python-pip unzip && \
     unzip -d /usr/bin/ terraform.zip && rm terraform.zip && \
     npm install -g aws-cdk serverless
 ADD vend.sh /vend.sh
+ADD update_pr.py /update_pr.py
 WORKDIR /github/workspace
 ENTRYPOINT ["/vend.sh"]

@@ -83,10 +83,15 @@ vend_when_approved() {
         echo "EMAIL needs to be a defined and unique parameter"
         exit 1
       fi
-      ndt create-account $EMAIL $NAME
-      CREATED_ACCOUNT=$(ndt show-stack-params-and-outputs managed-account-$NAME -p paramManagedAccount)
-      MANAGE_ROLE=$(ndt show-stack-params-and-outputs managed-account-$NAME -p ManageRole)
-      echo -n "Account ID: $CREATED_ACCOUNT"
+      if ! grep DEPLOY_ROLE_ARN $NAME/infra.properties > /dev/null; then
+        ndt create-account $EMAIL $NAME
+        CREATED_ACCOUNT=$(ndt show-stack-params-and-outputs managed-account-$NAME -p paramManagedAccount)
+        MANAGE_ROLE=$(ndt show-stack-params-and-outputs managed-account-$NAME -p ManageRole)
+        echo "DEPLOY_ROLE_ARN=$MANAGE_ROLE" >> $NAME/infra.properties
+        echo "CREATED_ACCOUNT_ID=$CREATED_ACCOUNT" >> $NAME/infra.properties
+        /update_pr.py "Created account $CREATED_ACCOUNT with name $NAME and email $EMAIL" $NAME/infra.properties
+        echo -n "Created Account ID: $CREATED_ACCOUNT"
+      fi
       COMPONENTS=$(mktemp -p .)
       ndt list-jobs -c $NAME -b $NAME -j | jq .branches[0].components[0].subcomponents > $COMPONENTS
       OLD_AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
