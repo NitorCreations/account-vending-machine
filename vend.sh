@@ -88,6 +88,8 @@ vend_when_approved() {
         CREATED_ACCOUNT=$(ndt show-stack-params-and-outputs managed-account-$NAME -p paramManagedAccount)
         MANAGE_ROLE=$(ndt show-stack-params-and-outputs managed-account-$NAME -p ManageRole)
         echo "DEPLOY_ROLE_ARN=$MANAGE_ROLE" >> $NAME/infra.properties
+        echo "CREATED_ACCOUNT_ID=$CREATED_ACCOUNT" >> $NAME/infra.properties
+        /update_pr.py "Created account $CREATED_ACCOUNT with name $NAME and email $EMAIL" $NAME/infra.properties
         echo -n "Created Account ID: $CREATED_ACCOUNT"
       fi
       COMPONENTS=$(mktemp -p .)
