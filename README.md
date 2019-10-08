@@ -1,4 +1,4 @@
-# Github AWS Account Vending Machine
+# Github Flow Account Vending Machine
 
 This repository defines a Github AWS Account vending machine worker action.
 
